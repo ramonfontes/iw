@@ -130,6 +130,7 @@ struct chandef {
 	__COMMAND(&(__section ## _ ## section), name, #name, args, cmd, flags, 1, idby, handler, NULL, NULL)
 
 #define TOPLEVEL(_name, _args, _nlcmd, _flags, _idby, _handler, _help)	\
+	extern struct cmd __section ## _ ## _name; /* sparse */		\
 	struct cmd							\
 	__section ## _ ## _name						\
 	__attribute__((used)) __attribute__((section("__cmd")))	= {	\
@@ -142,6 +143,7 @@ struct chandef {
 		.help = (_help),					\
 	 }
 #define SECTION(_name)							\
+	extern struct cmd __section ## _ ## _name; /* sparse */		\
 	struct cmd __section ## _ ## _name				\
 	__attribute__((used)) __attribute__((section("__cmd"))) = {	\
 		.name = (#_name),					\
@@ -175,14 +177,16 @@ int valid_handler(struct nl_msg *msg, void *arg);
 void register_handler(int (*handler)(struct nl_msg *, void *), void *data);
 
 int mac_addr_a2n(unsigned char *mac_addr, char *arg);
-void mac_addr_n2a(char *mac_addr, unsigned char *arg);
+void mac_addr_n2a(char *mac_addr, const unsigned char *arg);
 int parse_hex_mask(char *hexmask, unsigned char **result, size_t *result_len,
 		   unsigned char **mask);
 unsigned char *parse_hex(char *hex, size_t *outlen);
 
-int parse_keys(struct nl_msg *msg, char **argv, int argc);
+int parse_keys(struct nl_msg *msg, char **argv[], int *argc);
 int parse_freqchan(struct chandef *chandef, bool chan, int argc, char **argv, int *parsed);
 enum nl80211_chan_width str_to_bw(const char *str);
+int parse_txq_stats(char *buf, int buflen, struct nlattr *tid_stats_attr, int header,
+		    int tid, const char *indent);
 int put_chandef(struct nl_msg *msg, struct chandef *chandef);
 
 void print_ht_mcs(const __u8 *mcs);
@@ -229,6 +233,9 @@ int parse_sched_scan(struct nl_msg *msg, int *argc, char ***argv);
 DECLARE_SECTION(switch);
 DECLARE_SECTION(set);
 DECLARE_SECTION(get);
+
+void nan_bf(uint8_t idx, uint8_t *bf, uint16_t bf_len, const uint8_t *buf,
+	    size_t len);
 
 char *hex2bin(const char *hex, char *buf);
 

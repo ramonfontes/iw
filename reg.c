@@ -243,7 +243,7 @@ static int handle_reg_get(struct nl80211_state *state,
 	char *dump_args[] = { "reg", "dump" };
 	int err;
 
-	err = handle_cmd(state, CIB_NONE, 2, dump_args);
+	err = handle_cmd(state, II_NONE, 2, dump_args);
 	/*
 	 * dump might fail since it's not supported on older kernels,
 	 * in that case the handler is still registered already
@@ -259,3 +259,13 @@ COMMAND(reg, get, NULL, NL80211_CMD_GET_REG, 0, CIB_PHY, handle_reg_get,
 	"Print out the devices' current regulatory domain information.");
 HIDDEN(reg, dump, NULL, NL80211_CMD_GET_REG, NLM_F_DUMP, CIB_NONE,
        handle_reg_dump);
+
+static int handle_reg_reload(struct nl80211_state *state,
+			     struct nl_msg *msg,
+			     int argc, char **argv,
+			     enum id_input id)
+{
+	return 0;
+}
+COMMAND(reg, reload, NULL, NL80211_CMD_RELOAD_REGDB, 0, CIB_NONE,
+	handle_reg_reload, "Reload the kernel's regulatory database.");
